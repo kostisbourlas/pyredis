@@ -29,11 +29,21 @@ class RespTestCase(unittest.TestCase):
         first_byte: str = RespHandler.determine_first_byte(input)
         self.assertEqual(first_byte, "ARRAY")
 
+    def test_determine_first_byte_is_a_null(self):
+        input: bytes = b"_\r\n"
+        first_byte: str = RespHandler.determine_first_byte(input)
+        self.assertEqual(first_byte, "NULL")
+
+    def test_determine_first_byte_is_a_boolean(self):
+        input: bytes = b"#t\r\n"
+        first_byte: str = RespHandler.determine_first_byte(input)
+        self.assertEqual(first_byte, "BOOLEAN")
+
     def test_determine_invalid_prefix_should_raise_error(self):
         input: bytes = b"&2\r\n$4\r\necho\r\n$11\r\nhello world\r\n"
         with self.assertRaises(InvalidFormatError) as error:
             RespHandler.determine_first_byte(input)
 
         self.assertEqual(
-            str(error.exception), "Byte array should start by +, -, :, $ or *."
+            str(error.exception), "Invalid message. Cannot define data type."
         )

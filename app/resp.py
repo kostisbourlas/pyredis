@@ -11,12 +11,11 @@ class RespEnum(enum.Enum):
     INTEGER = "INTEGER"
     BULK = "BULK_STRING"
     ARRAY = "ARRAY"
+    NULL = "NULL"
+    BOOLEAN = "BOOLEAN"
 
 
 class RespHandler:
-    def deserialize(input: str) -> str:
-        pass
-
     def determine_first_byte(input: bytes) -> str:
         if input[:1] == b"+":
             return RespEnum.SIMPLE.value
@@ -28,5 +27,9 @@ class RespHandler:
             return RespEnum.BULK.value
         if input[:1] == b"*":
             return RespEnum.ARRAY.value
+        if input[:1] == b"_":
+            return RespEnum.NULL.value
+        if input[:1] == b"#":
+            return RespEnum.BOOLEAN.value
 
-        raise InvalidFormatError("Byte array should start by +, -, :, $ or *.")
+        raise InvalidFormatError("Invalid message. Cannot define data type.")
